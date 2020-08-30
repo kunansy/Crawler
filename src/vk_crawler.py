@@ -292,9 +292,10 @@ class VKCrawler:
         with path.open('w', newline='', encoding=ENCODING) as f:
 
             writer = csv.DictWriter(
-                f, fieldnames=FIELDNAMES,
+                f, restval='',
+                fieldnames=FIELDNAMES,
                 delimiter=DELIMITER,
                 quoting=csv.QUOTE_MINIMAL
             )
-
+            writer.writeheader()
             writer.writerows(metadata)
