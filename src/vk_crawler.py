@@ -161,6 +161,7 @@ class VKCrawler:
         :return: dict of str with the format
         """
         date = VKCrawler._get_date(post['date'])
+        date = date.strftime("%m/%d/%Y")
         try:
             title_and_text = VKCrawler._get_text(post['text'])
         except AssertionError as e:
