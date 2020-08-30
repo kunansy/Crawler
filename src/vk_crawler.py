@@ -93,7 +93,7 @@ class VKCrawler:
             raise ValueError(
                 "Old results count must be >= than current count")
 
-        new_count = old_results_count - self.results_count
+        new_count = self.results_count - old_results_count
         self.request(new_count)
 
     def request(self,
