@@ -75,6 +75,21 @@ class VKCrawler:
         """
         return self._access_token
 
+    def update(self,
+               old_results_count: int) -> None:
+        """ Get all new posts.
+
+        :param old_results_count: int, old count of results (=count of docs).
+        From here count of new posts will be calculated.
+        :return: None.
+        """
+        if old_results_count < self.results_count:
+            raise ValueError(
+                "Old results count must be >= than current count")
+
+        new_count = old_results_count - self.results_count
+        self.request(new_count)
+
     def request(self,
                 count: int) -> None:
         """ Request posts from vk and parse them.
