@@ -7,6 +7,11 @@ from typing import List, Tuple, Any, Dict
 
 from src.request import get_json
 
+# Dict[str, Any]
+Sdict = Dict[str, Any]
+# pairs with languages
+TL = Tuple[str, str]
+
 # folder with csv files
 DATA_FOLDER = Path('data')
 os.makedirs(DATA_FOLDER, exist_ok=True)
@@ -56,14 +61,14 @@ class VKCrawler:
         return f"{self._url}/{self._method}"
 
     @property
-    def posts(self) -> List[Dict[str, Any]]:
+    def posts(self) -> List[Sdict]:
         """
         :return: list of dicts, posts from VK.
         """
         return self._posts
 
     @property
-    def parsed_posts(self) -> List[Dict[str, Any]]:
+    def parsed_posts(self) -> List[Sdict]:
         """
         :return: list of dict, parsed posts.
         """
@@ -120,7 +125,7 @@ class VKCrawler:
         return response[0]['response']['count']
 
     @staticmethod
-    def _swap_langs(pairs: List[Tuple[str, str]]) -> List[Tuple[str, str]]:
+    def _swap_langs(pairs: List[TL]) -> List[TL]:
         """ Swap languages if the first one is not Russian.
 
         :param pairs: list of tuples, pairs: Russian – Chinese (expected).
@@ -134,7 +139,7 @@ class VKCrawler:
         ]
 
     @staticmethod
-    def _get_text(text: str) -> Dict[str, Any]:
+    def _get_text(text: str) -> Sdict:
         """ Parse text to its headers and list of tuples:
         Russian text, Chinese text.
 
@@ -181,7 +186,7 @@ class VKCrawler:
         return dt.date()
 
     @staticmethod
-    def _parse_post(post: Dict[str, Any]) -> Dict[str, Any]:
+    def _parse_post(post: Sdict) -> Sdict:
         """ Get all info from the post.
 
         Dict format {
@@ -206,7 +211,7 @@ class VKCrawler:
             'date': date,
         }
 
-    def _parse_posts(self) -> List[Dict[str, Any]]:
+    def _parse_posts(self) -> List[Sdict]:
         """ Parse all posts to dict format: {
            'header': header in Chinese
            'header_trans': header in Russian,
@@ -223,7 +228,7 @@ class VKCrawler:
         return parsed_posts
 
     @staticmethod
-    def _dump_one(post: Dict[str, Any],
+    def _dump_one(post: Sdict,
                   filepath: Path) -> None:
         """ Dump one post to the csv file.
 
@@ -287,7 +292,7 @@ class VKCrawler:
         VKCrawler._dump_metadata(metadata)
 
     @staticmethod
-    def _dump_metadata(metadata: List[Dict[str, Any]]) -> None:
+    def _dump_metadata(metadata: List[Sdict]) -> None:
         """ Dump metadata to the csv file.
 
         :param metadata: list of tuples, metadata to dump.
