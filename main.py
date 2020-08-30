@@ -77,151 +77,200 @@ def get_json(url: str,
     return asyncio.run(bound_fetch(url, params))
 
 
-def get_text(text: str) -> Dict[str, Any]:
-    """ Parse text to its title and list of tuples:
-    Chinese text, Russian text.
+class VKCrawler:
+    def __init__(self,
+                 access_token: str,
+                 method: str = SEARCH_ON_WALL,
+                 **params) -> None:
+        """ """
+        self._url = BASE_URL
+        self._method = method
 
-    Dict format {
-        'title': (Chinese, Russian),
-        'text': [(Chinese, Russian), (Chinese, Russian)...]
-    }
+        self._access_token = access_token
+        self._params = {
+            **params,
+            'v': '5.122',
+            'access_token': self.access_token
+        }
+        self._posts = []
+        self._parsed_posts = []
 
-    :param text: str, text to parse.
-    :return: dict of str with the format.
-    """
-    assert "#Новости_на_двух_языках" in text, \
-        "There is no the hashtag"
+    @property
+    def url(self) -> str:
+        return f"{self._url}/{self._method}"
 
-    # here is '#Новости_на_двух_языках', remove it
-    paragraphs = text.split('\n')[2:]
+    @property
+    def posts(self) -> List[Dict[str, Any]]:
+        return self._posts
 
-    # there is '。' at the end of the Chinese text
-    paragraphs = [
-        text.replace('。', '').strip()
-        for text in paragraphs
-        if len(text) > 1
-    ]
+    @property
+    def parsed_posts(self) -> List[Dict[str, Any]]:
+        return self._parsed_posts
 
-    title = paragraphs[0], paragraphs[1]
-    # exclude the title from here
-    pairs = list(zip(paragraphs[2::2], paragraphs[3::2]))
-    return {
-        'title': title,
-        'text': pairs
-    }
+    @property
+    def access_token(self) -> str:
+        return self._access_token
 
+    def request(self,
+                count: int) -> None:
+        posts = get_json(self.url, **self._params, count=count)
+        posts = [
+            item['response']['items']
+            for item in posts
+        ]
+        self._posts = sum(posts, [])
+        self._parsed_posts = self._parse_posts()
 
-def get_date(timestamp: int) -> datetime.datetime:
-    """ Convert date from timestamp to datetime.
+    @staticmethod
+    def _get_text(text: str) -> Dict[str, Any]:
+        """ Parse text to its title and list of tuples:
+        Chinese text, Russian text.
 
-    :param timestamp: int, date in timestamp.
-    :return: datetime.
-    """
-    return datetime.datetime.fromtimestamp(timestamp)
+        Dict format {
+            'title': (Chinese, Russian),
+            'text': [(Chinese, Russian), (Chinese, Russian)...]
+        }
 
+        :param text: str, text to parse.
+        :return: dict of str with the format.
+        """
+        patter = re.compile(
+            r'#Новости_на_двух_языках', flags=re.IGNORECASE)
+        assert patter.search(text), "There is no the hashtag"
 
-def parse_post(post: Dict[str, Any]) -> Dict[str, Any]:
-    """ Get all info from the post.
+        # here is '#Новости_на_двух_языках', remove it
+        paragraphs = text.split('\n')[2:]
 
-    Dict format {
-        'title': (Chinese, Russian),
-        'text': [(Chinese, Russian), (Chinese, Russian)...],
-        'date': datetime
-    }
+        # there is '。' at the end of the Chinese text
+        paragraphs = [
+            text.replace('。', '').strip()
+            for text in paragraphs
+            if len(text) > 1
+        ]
 
-    :param post: dict of str, post to parse.
-    :return: dict of str with the format
-    """
-    date = get_date(post['date'])
-    title_and_text = get_text(post['text'])
+        title = paragraphs[0], paragraphs[1]
+        # exclude the title from here
+        pairs = list(zip(paragraphs[2::2], paragraphs[3::2]))
+        return {
+            'title': title,
+            'text': pairs
+        }
 
-    return {
-        **title_and_text,
-        'date': date,
-    }
+    @staticmethod
+    def _get_date(timestamp: int) -> datetime.datetime:
+        """ Convert date from timestamp to datetime.
 
+        :param timestamp: int, date in timestamp.
+        :return: datetime.
+        """
+        return datetime.datetime.fromtimestamp(timestamp)
 
-def parse_posts(posts: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """ Parse all posts to dict format: {
-       'title': (Chinese, Russian),
-        'text': [(Chinese, Russian), (Chinese, Russian)...],
-        'date': datetime
-    }
+    @staticmethod
+    def _parse_post(post: Dict[str, Any]) -> Dict[str, Any]:
+        """ Get all info from the post.
 
-    :return: list of parsed posts.
-    """
-    parsed_posts = [
-        parse_post(post)
-        for post in posts
-    ]
-    return parsed_posts
+        Dict format {
+            'title': (Chinese, Russian),
+            'text': [(Chinese, Russian), (Chinese, Russian)...],
+            'date': datetime
+        }
 
+        :param post: dict of str, post to parse.
+        :return: dict of str with the format
+        """
+        date = VKCrawler._get_date(post['date'])
+        try:
+            title_and_text = VKCrawler._get_text(post['text'])
+        except AssertionError as e:
+            print(e, post, sep='\n')
+            return {}
 
-def dump_one(post: Dict[str, Any],
-             filepath: Path) -> None:
-    """ Dump one post to the csv file.
+        return {
+            **title_and_text,
+            'date': date,
+        }
 
-    :param post: dict of str, post to dump.
-    :param filepath: Path to the file.
-    :return: None.
-    """
-    with filepath.open('w', newline='', encoding='utf-16') as f:
-        writer = csv.writer(f, delimiter='\t', quoting=csv.QUOTE_MINIMAL)
-        for pair_ch_ru in post['text']:
-            writer.writerow(pair_ch_ru)
+    def _parse_posts(self) -> List[Dict[str, Any]]:
+        """ Parse all posts to dict format: {
+           'title': (Chinese, Russian),
+            'text': [(Chinese, Russian), (Chinese, Russian)...],
+            'date': datetime
+        }
 
+        :return: list of parsed posts.
+        """
+        parsed_posts = [
+            VKCrawler._parse_post(post)
+            for post in self.posts
+        ]
+        return parsed_posts
 
-def create_filename(title: str) -> Path:
-    """ Remove wrong symbols from the title,
-    replace spaces to the '_', add DATA_OLDER
-    as a parent and short the filename to 16 symbols.
+    @staticmethod
+    def _dump_one(post: Dict[str, Any],
+                  filepath: Path) -> None:
+        """ Dump one post to the csv file.
 
-    :param title: str, title of the post.
-    :return: Path to the csv file in the DATA_FOLDER.
-    """
-    title = [
-        symbol if symbol != ' ' else '_'
-        for symbol in title
-        if symbol.isalpha() or symbol == ' '
-    ]
-    filename = ''.join(title)[:16]
-    return DATA_FOLDER / f"{filename}.csv"
+        :param post: dict of str, post to dump.
+        :param filepath: Path to the file.
+        :return: None.
+        """
+        with filepath.open('w', newline='', encoding='utf-8') as f:
+            writer = csv.writer(
+                f, delimiter=DELIMITER, quoting=csv.QUOTE_MINIMAL)
+            for pair_ch_ru in post['text']:
+                writer.writerow(pair_ch_ru)
 
+    @staticmethod
+    def _create_filename(title: str) -> Path:
+        """ Remove wrong symbols from the title,
+        replace spaces to the '_', add DATA_OLDER
+        as a parent and short the filename to 16 symbols.
 
-def dump_all(posts: List[Dict[str, Any]]) -> None:
-    """ Dump to csv all posts and write to
-    other file metadata.
+        :param title: str, title of the post.
+        :return: Path to the csv file in the DATA_FOLDER.
+        """
+        title = [
+            symbol if symbol != ' ' else '_'
+            for symbol in title
+            if symbol.isalpha() or symbol == ' '
+        ]
+        filename = ''.join(title)[:16]
+        return DATA_FOLDER / f"{filename}.csv"
 
-    Filename is the first 16 symbols of
-    Russian translation of the title.
+    def dump_all(self) -> None:
+        """ Dump to csv all posts and write to
+        other file metadata.
 
-    :param posts: list of dicts, posts to dump;
-    :return: None.
-    """
-    metadata = []
-    for post in posts:
-        title = post.pop('title')
-        date = post.pop('date')
-        # name is the first 16 symbols of Russian
-        # translation of the title
-        path = create_filename(title[1])
-        metadata += [(path.name, *title, date)]
+        Filename is the first 16 symbols of
+        Russian translation of the title.
 
-        dump_one(post, path)
-    dump_metadata(metadata)
+        :return: None.
+        """
+        metadata = []
+        for post in self.parsed_posts:
+            title = post.pop('title')
+            date = post.pop('date')
+            # name is the first 16 symbols of Russian
+            # translation of the title
+            path = VKCrawler._create_filename(title[1])
+            metadata += [(path.name, *title, date)]
 
+            VKCrawler._dump_one(post, path)
+        VKCrawler._dump_metadata(metadata)
 
-def dump_metadata(metadata: List[Tuple[Any]]) -> None:
-    """ Dump metadata to the csv file.
+    @staticmethod
+    def _dump_metadata(metadata: List[Tuple[Any]]) -> None:
+        """ Dump metadata to the csv file.
 
-    :param metadata: list of tuples, metadata to dump.
-    :return: None.
-    """
-    path = DATA_FOLDER / 'metadata.csv'
-    with path.open('w', newline='', encoding='utf-16') as f:
-        writer = csv.writer(f, delimiter='\t', quoting=csv.QUOTE_MINIMAL)
+        :param metadata: list of tuples, metadata to dump.
+        :return: None.
+        """
+        path = DATA_FOLDER / 'metadata.csv'
+        with path.open('w', newline='', encoding='utf-8') as f:
+            writer = csv.writer(
+                f, delimiter=DELIMITER, quoting=csv.QUOTE_MINIMAL)
 
-        writer.writerows(metadata)
+            writer.writerows(metadata)
 
 
 if __name__ == '__main__':
