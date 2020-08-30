@@ -107,6 +107,14 @@ class VKCrawler:
         self._posts = sum(posts, [])
         self._parsed_posts = self._parse_posts()
 
+    def _get_results_count(self) -> int:
+        """ Get count of results found in VK.
+
+        :return: int, count of results.
+        """
+        response = get_json(self.url, **self._params, count=1)
+        return response['response']['count']
+
     @staticmethod
     def _swap_langs(pairs: List[Tuple[str, str]]) -> List[Tuple[str, str]]:
         """ Swap languages if the first one is not Russian.
