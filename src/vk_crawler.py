@@ -99,6 +99,9 @@ class VKCrawler:
         :param count: int, count of posts.
         :return: None.
         """
+        if count > self.results_count:
+            raise ValueError(f"There are less results: '{self.results_count}'")
+
         posts = get_json(self.url, **self._params, count=count)
         posts = [
             item['response']['items']
