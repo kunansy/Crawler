@@ -14,6 +14,12 @@ os.makedirs(DATA_FOLDER, exist_ok=True)
 # delimiter in csv files
 DELIMITER = '\t'
 
+# for metadata writing
+FIELDNAMES = (
+    'path', 'header', 'created', 'author', 'birthday', 'header_trans',
+    'author_trans', 'translator', 'date_trans', 'sphere', 'lang', 'lang_trans'
+)
+
 BASE_URL = "https://api.vk.com/method"
 SEARCH_ON_WALL = "wall.search"
 
@@ -220,7 +226,7 @@ class VKCrawler:
         VKCrawler._dump_metadata(metadata)
 
     @staticmethod
-    def _dump_metadata(metadata: List[Tuple[Any]]) -> None:
+    def _dump_metadata(metadata: List[Dict[str, Any]]) -> None:
         """ Dump metadata to the csv file.
 
         :param metadata: list of tuples, metadata to dump.
@@ -228,7 +234,11 @@ class VKCrawler:
         """
         path = DATA_FOLDER / 'metadata.csv'
         with path.open('w', newline='', encoding='utf-8') as f:
-            writer = csv.writer(
-                f, delimiter=DELIMITER, quoting=csv.QUOTE_MINIMAL)
+
+            writer = csv.DictWriter(
+                f, fieldnames=FIELDNAMES,
+                delimiter=DELIMITER,
+                quoting=csv.QUOTE_MINIMAL
+            )
 
             writer.writerows(metadata)
