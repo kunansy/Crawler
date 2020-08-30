@@ -237,8 +237,8 @@ class VKCrawler:
     @staticmethod
     def _create_filename(title: str) -> Path:
         """ Remove wrong symbols from the title,
-        replace spaces to the '_', add DATA_OLDER
-        as a parent and short the filename to 16 symbols.
+        replace spaces to the '_', add DATA_FOLDER
+        as a parent and short the filename to 32 symbols.
 
         :param title: str, title of the post.
         :return: Path to the csv file in the DATA_FOLDER.
@@ -248,14 +248,14 @@ class VKCrawler:
             for symbol in title
             if symbol.isalpha() or symbol == ' '
         ]
-        filename = ''.join(title)[:16]
+        filename = ''.join(title)[:32]
         return DATA_FOLDER / f"{filename}.csv"
 
     def dump_all(self) -> None:
         """ Dump to csv all posts and write to
         other file metadata.
 
-        Filename is the first 16 symbols of
+        Filename is the first 32 symbols of
         Russian translation of the title.
 
         :return: None.
@@ -266,7 +266,7 @@ class VKCrawler:
             header_trans = post.pop('header_trans')
             date = post.pop('date')
 
-            # name is the first 16 symbols of Russian
+            # name is the first 32 symbols of Russian
             # translation of the title
             path = VKCrawler._create_filename(header_trans)
 
