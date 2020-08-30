@@ -138,13 +138,14 @@ class VKCrawler:
         }
 
     @staticmethod
-    def _get_date(timestamp: int) -> datetime.datetime:
+    def _get_date(timestamp: int) -> datetime.date:
         """ Convert date from timestamp to datetime.
 
         :param timestamp: int, date in timestamp.
-        :return: datetime.
+        :return: date.
         """
-        return datetime.datetime.fromtimestamp(timestamp)
+        dt = datetime.datetime.fromtimestamp(timestamp)
+        return dt.date()
 
     @staticmethod
     def _parse_post(post: Dict[str, Any]) -> Dict[str, Any]:
