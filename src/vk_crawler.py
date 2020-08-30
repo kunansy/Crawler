@@ -117,7 +117,7 @@ class VKCrawler:
         :return: int, count of results.
         """
         response = get_json(self.url, **self._params, count=1)
-        return response['response']['count']
+        return response[0]['response']['count']
 
     @staticmethod
     def _swap_langs(pairs: List[Tuple[str, str]]) -> List[Tuple[str, str]]:
