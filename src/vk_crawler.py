@@ -41,6 +41,11 @@ class VKCrawler:
         }
         self._posts = []
         self._parsed_posts = []
+        self._results_count = self._get_results_count()
+
+    @property
+    def results_count(self) -> int:
+        return self._results_count
 
     @property
     def url(self) -> str:
