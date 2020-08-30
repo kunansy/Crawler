@@ -230,12 +230,21 @@ class VKCrawler:
         """
         metadata = []
         for post in self.parsed_posts:
-            title = post.pop('title')
+            header = post.pop('header')
+            header_trans = post.pop('header_trans')
             date = post.pop('date')
+
             # name is the first 16 symbols of Russian
             # translation of the title
-            path = VKCrawler._create_filename(title[1])
-            metadata += [(path.name, *title, date)]
+            path = VKCrawler._create_filename(header_trans)
+
+            md = {
+                'path': path.name,
+                'header': header,
+                'header_trans': header_trans,
+                'created': date
+            }
+            metadata += [md]
 
             VKCrawler._dump_one(post, path)
         VKCrawler._dump_metadata(metadata)
