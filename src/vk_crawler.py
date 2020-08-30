@@ -274,7 +274,9 @@ class VKCrawler:
                 'path': path.name,
                 'header': header,
                 'header_trans': header_trans,
-                'created': date
+                'created': date,
+                'lang': 'zho',
+                'lang_trans': 'rus'
             }
             metadata += [md]
 
