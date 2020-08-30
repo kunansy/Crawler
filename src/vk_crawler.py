@@ -87,6 +87,20 @@ class VKCrawler:
         self._parsed_posts = self._parse_posts()
 
     @staticmethod
+    def _swap_langs(pairs: List[Tuple[str, str]]) -> List[Tuple[str, str]]:
+        """ Swap languages if the first one is not Russian.
+
+        :param pairs: list of tuples, pairs: Russian – Chinese (expected).
+        :return: list of tuples, pairs with corrected order.
+        """
+        if re.search(r'[а-яёА-ЯЁ]', pairs[0][0]):
+            return pairs
+        return [
+            (ru, ch)
+            for ch, ru in pairs
+        ]
+
+    @staticmethod
     def _get_text(text: str) -> Dict[str, Any]:
         """ Parse text to its headers and list of tuples:
         Russian text, Chinese text.
@@ -113,13 +127,15 @@ class VKCrawler:
             for text in paragraphs
             if len(text) > 1
         ]
+        pairs = list(zip(paragraphs[::2], paragraphs[::2]))
+        # swap languages if it is demanded
+        pairs = VKCrawler._swap_langs(pairs)
 
-        title = paragraphs[0], paragraphs[1]
-        # exclude the title from here
-        pairs = list(zip(paragraphs[2::2], paragraphs[3::2]))
+        header_trans, header = pairs[0]
         return {
-            'title': title,
-            'text': pairs
+            'header': header,
+            'header_trans': header_trans,
+            'text': pairs[1:]
         }
 
     @staticmethod
