@@ -121,9 +121,8 @@ class VKCrawler:
         # here is '#Новости_на_двух_языках', remove it
         paragraphs = text.split('\n')[2:]
 
-        # there is '。' at the end of the Chinese text
         paragraphs = [
-            text.replace('。', '').strip()
+            text.strip()
             for text in paragraphs
             if len(text) > 1
         ]
