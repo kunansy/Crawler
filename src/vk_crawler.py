@@ -13,6 +13,7 @@ os.makedirs(DATA_FOLDER, exist_ok=True)
 
 # delimiter in csv files
 DELIMITER = '\t'
+ENCODING = 'utf-16'
 
 # for metadata writing
 FIELDNAMES = (
@@ -227,7 +228,7 @@ class VKCrawler:
         :param filepath: Path to the file.
         :return: None.
         """
-        with filepath.open('w', newline='', encoding='utf-8') as f:
+        with filepath.open('w', newline='', encoding=ENCODING) as f:
             writer = csv.writer(
                 f, delimiter=DELIMITER, quoting=csv.QUOTE_MINIMAL)
             for pair_ch_ru in post['text']:
@@ -288,7 +289,7 @@ class VKCrawler:
         :return: None.
         """
         path = DATA_FOLDER / 'metadata.csv'
-        with path.open('w', newline='', encoding='utf-8') as f:
+        with path.open('w', newline='', encoding=ENCODING) as f:
 
             writer = csv.DictWriter(
                 f, fieldnames=FIELDNAMES,
