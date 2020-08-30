@@ -38,22 +38,40 @@ class VKCrawler:
 
     @property
     def url(self) -> str:
+        """
+        :return: str, url of vk dev joined with method.
+        """
         return f"{self._url}/{self._method}"
 
     @property
     def posts(self) -> List[Dict[str, Any]]:
+        """
+        :return: list of dicts, posts from VK.
+        """
         return self._posts
 
     @property
     def parsed_posts(self) -> List[Dict[str, Any]]:
+        """
+        :return: list of dict, parsed posts.
+        """
         return self._parsed_posts
 
     @property
     def access_token(self) -> str:
+        """
+        :return: str, access token.
+        """
         return self._access_token
 
     def request(self,
                 count: int) -> None:
+        """ Request posts from vk and parse them.
+        Update posts list and list of parsed posts.
+
+        :param count: int, count of posts.
+        :return: None.
+        """
         posts = get_json(self.url, **self._params, count=count)
         posts = [
             item['response']['items']
@@ -64,12 +82,13 @@ class VKCrawler:
 
     @staticmethod
     def _get_text(text: str) -> Dict[str, Any]:
-        """ Parse text to its title and list of tuples:
-        Chinese text, Russian text.
+        """ Parse text to its headers and list of tuples:
+        Russian text, Chinese text.
 
         Dict format {
-            'title': (Chinese, Russian),
-            'text': [(Chinese, Russian), (Chinese, Russian)...]
+            'header': header in Chinese.
+            'header_trans': header in Russian,
+            'text': [(Russian, Chinese), (Russian, Chinese)...]
         }
 
         :param text: str, text to parse.
@@ -111,9 +130,9 @@ class VKCrawler:
         """ Get all info from the post.
 
         Dict format {
-            'title': (Chinese, Russian),
-            'text': [(Chinese, Russian), (Chinese, Russian)...],
-            'date': datetime
+            'title': (Russian, Chinese),
+            'text': [(Russian, Chinese), (Russian, Chinese)...],
+            'date': date, str format m/d/y
         }
 
         :param post: dict of str, post to parse.
@@ -133,9 +152,10 @@ class VKCrawler:
 
     def _parse_posts(self) -> List[Dict[str, Any]]:
         """ Parse all posts to dict format: {
-           'title': (Chinese, Russian),
-            'text': [(Chinese, Russian), (Chinese, Russian)...],
-            'date': datetime
+           'header': header in Chinese
+           'header_trans': header in Russian,
+            'text': [(Russian, Chinese), (Russian, Chinese)...],
+            'date': date, str format m/d/y
         }
 
         :return: list of parsed posts.
