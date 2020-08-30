@@ -1,10 +1,12 @@
 import asyncio
-from typing import Dict, Any
+from typing import Dict, Any, List, Tuple
 
 import aiohttp
 
 # timeout
 WAIT = 25
+# Dict[str, Any]
+Sdict = Dict[str, Any]
 
 
 async def get_json_coro(url: str,
@@ -15,7 +17,7 @@ async def get_json_coro(url: str,
 
     There is ClientTimeout.
 
-    :param url: str, url to request.
+    :param url: str, URL to request.
     :param ses: aiohttp.ClientSession.
     :param params: dict of str, HTTP tags.
     :return: json dict decoded to UTF-8.
@@ -29,11 +31,11 @@ async def get_json_coro(url: str,
 
 
 async def bound_fetch(url: str,
-                      params: Dict[str, Any]) -> Dict[str, Any]:
+                      params: Sdict) -> List[Sdict]:
     """ Coro, getting json with get_json_coro
     and catching exceptions.
 
-    :param url: str, url to request.
+    :param url: str, URL to request.
     :param params: dict of str, HTTP tags.
     :return: json dict decoded to UTF-8.
     :exception: if sth went wrong.
@@ -72,13 +74,13 @@ async def bound_fetch(url: str,
 
 
 def get_json(url: str,
-             **params) -> Dict[str, Any]:
-    """ Request to the url with params asynchronously
+             **params) -> Sdict:
+    """ Request to the URL with params asynchronously
     and get json decoded to UTF-8 from there.
 
-    :param url: str, url to request.
+    :param url: str, URL to request.
     :param params: dict of str, HTTP tags.
-    :return: json dict decoded to UTF-8..
+    :return: json dict decoded to UTF-8.
     :exception: if sth went wrong.
     """
     return asyncio.run(bound_fetch(url, params))
