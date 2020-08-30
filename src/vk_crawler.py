@@ -159,7 +159,7 @@ class VKCrawler:
             for text in paragraphs
             if len(text) > 1
         ]
-        pairs = list(zip(paragraphs[::2], paragraphs[::2]))
+        pairs = list(zip(paragraphs[::2], paragraphs[1::2]))
         # swap languages if it is demanded
         pairs = VKCrawler._swap_langs(pairs)
 
