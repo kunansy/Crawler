@@ -5,7 +5,7 @@ import re
 from pathlib import Path
 from typing import List, Tuple, Any, Dict
 
-from .request import get_json
+from src.request import get_json
 
 # folder with csv files
 DATA_FOLDER = Path('data')
@@ -83,6 +83,7 @@ class VKCrawler:
             item['response']['items']
             for item in posts
         ]
+        # convert matrix to list
         self._posts = sum(posts, [])
         self._parsed_posts = self._parse_posts()
 
