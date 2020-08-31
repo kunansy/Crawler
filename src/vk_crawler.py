@@ -319,7 +319,7 @@ class VKCrawler:
         parsed_posts = []
         for post in self.posts:
             try:
-                parsed_post = VKCrawler._parse_post(post)
+                parsed_post = VKCrawler._parse_post(post, self._dateformat)
             except AssertionError as e:
                 print(e, post, sep='\n', end='\n\n')
                 self._skipped_posts += [post]
