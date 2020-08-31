@@ -56,6 +56,15 @@ class VKCrawler:
         self._parsed_posts = []
         self._results_count = self._get_results_count()
 
+        self._skipped_posts = []
+
+    @property
+    def skipped_posts(self) -> List[Dict]:
+        """
+        :return: list of dicts, posts have not been parsed.
+        """
+        return self._skipped_posts
+
     @property
     def results_count(self) -> int:
         """
@@ -252,10 +261,12 @@ class VKCrawler:
             try:
                 parsed_post = VKCrawler._parse_post(post)
             except AssertionError as e:
-                print(e, post, sep='\n')
+                print(e, post, sep='\n', end='\n\n')
+                self._skipped_posts += [post]
                 continue
             except ValueError as e:
-                print(e, post, sep='\n')
+                print(e, post, sep='\n', end='\n\n')
+                self._skipped_posts += [post]
                 continue
             else:
                 parsed_posts += [parsed_post]
