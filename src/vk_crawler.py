@@ -220,18 +220,33 @@ class VKCrawler:
         :param text: str, text to parse.
         :return: dict of str with the format.
         """
-        patter = re.compile(
+        hashtag_search = re.compile(
             r'#Новости_на_двух_языках', flags=re.IGNORECASE)
-        assert patter.search(text), "There is no the hashtag"
+        assert hashtag_search.search(text), "There is no the hashtag"
 
-        # here is '#Новости_на_двух_языках', remove it
-        paragraphs = text.split('\n')[2:]
+        text = text.replace('\n \n', '\n\n')
+        text = hashtag_search.sub('', text).strip()
 
+        text = VKCrawler._remove_trash(text)
+
+        paragraphs = text.split('\n')
+        # remove hashtags
+        paragraphs = filter(
+            lambda txt: not txt.startswith('#'),
+            paragraphs
+        )
         paragraphs = [
             text.strip()
             for text in paragraphs
             if len(text) > 1
         ]
+
+        if not paragraphs:
+            raise ValueError("Post is empty")
+
+        if len(paragraphs) % 2 is 1:
+            raise ValueError("There is odd count of paragraphs")
+
         pairs = list(zip(paragraphs[::2], paragraphs[1::2]))
         # swap languages if it is demanded
         pairs = VKCrawler._swap_langs(pairs)
