@@ -345,8 +345,8 @@ class VKCrawler:
         with filepath.open('w', newline='', encoding=ENCODING) as f:
             writer = csv.writer(
                 f, delimiter=DELIMITER, quoting=csv.QUOTE_MINIMAL)
-            for pair_ch_ru in post['text']:
-                writer.writerow(pair_ch_ru)
+            for pair_ru_ch in post['text']:
+                writer.writerow(pair_ru_ch)
 
     @staticmethod
     def _create_filename(title: str) -> Path:
