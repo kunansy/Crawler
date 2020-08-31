@@ -171,6 +171,31 @@ class VKCrawler:
         return ''
 
     @staticmethod
+    def _remove_trash(text: str) -> str:
+        """ Remove 'ключевая фраза...' from the text.
+
+        :param text: str, text to clear.
+        :return: str, cleared text.
+        """
+        daily_remember = re.compile(
+            r'(ключев(ая|ое) (фраза|слово|словосочетение)).*',
+            flags=re.IGNORECASE
+        )
+        found = daily_remember.search(text)
+        if found and found.group(0):
+            start = text.index('\n\n')
+            stop = text.index('\n\n', start + 2)
+            removed = text[start:stop]
+
+            if not daily_remember.search(removed):
+                raise ValueError("Daily remember is not here")
+
+            title = text[:start]
+            txt = text[stop:]
+            text = f"{title}\n\n{txt}"
+        return text
+
+    @staticmethod
     def _get_text(text: str) -> Sdict:
         """ Parse text to its headers and list of tuples:
         Russian text, Chinese text.
