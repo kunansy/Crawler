@@ -278,7 +278,8 @@ class VKCrawler:
         return date.strftime(self._dateformat)
 
     @staticmethod
-    def _parse_post(post: Sdict) -> Sdict:
+    def _parse_post(post: Sdict,
+                    dateformat: str) -> Sdict:
         """ Get all info from the post.
 
         Dict format {
@@ -288,10 +289,11 @@ class VKCrawler:
         }
 
         :param post: dict of str, post to parse.
+        :param dateformat: str, dateformat.
         :return: dict of str with the format
         """
         date = VKCrawler._get_date(post['date'])
-        date = date.strftime("%m/%d/%Y")
+        date = date.strftime(dateformat)
         try:
             title_and_text = VKCrawler._get_text(post['text'])
         except AssertionError:
