@@ -151,18 +151,16 @@ class VKCrawler:
         :return: list of tuples, pairs with corrected order.
         """
         fixed_pairs = []
+        ru_pattern = re.compile(r'[а-яё]', flags=re.IGNORECASE)
         for lhs, rhs in pairs:
-            if VKCrawler._define_language(lhs) == VKCrawler._define_language(rhs):
+            if ru_pattern.search(lhs) and VKCrawler._define_language(rhs) == 'rus':
                 raise ValueError(
-                    f"There is a pair with the same languages: {lhs}\n{rhs}")
-            if VKCrawler._define_language(lhs) == 'rus':
+                    f"There is a pair with the same languages: \n{lhs}\n{rhs}")
+            if ru_pattern.search(lhs):
                 fixed_pairs += [(lhs, rhs)]
             else:
                 fixed_pairs += [(rhs, lhs)]
-        return [
-            (ru, ch)
-            for ch, ru in pairs
-        ]
+        return fixed_pairs
 
     @staticmethod
     def _define_language(text: str) -> str:
