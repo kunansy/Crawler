@@ -29,11 +29,6 @@ FIELDNAMES = (
 BASE_URL = "https://api.vk.com/method"
 SEARCH_ON_WALL = "wall.search"
 
-# some texts contains strings which are noe expected
-# in parsed posts but it is impossible to remove
-# them automatically. This list is needed for this.
-BLACK_LIST = ['huāchē xúnyóu']
-
 
 class VKCrawler:
     def __init__(self,
@@ -167,100 +162,6 @@ class VKCrawler:
         elif re.search(r'[а-яё]', text, flags=re.IGNORECASE):
             return 'rus'
         return ''
-
-    @staticmethod
-    def _remove_hint_to_learn(paragraphs: List[str]) -> List[str]:
-        """ Remove 'Ключевая фраза на сегодня'
-        and all its components (1) from the text.
-
-        (1):
-
-        1. Phrase 'Ключевая фраза на сегодня'.
-
-        2. Its Chinese version (two types).
-
-        3. The phrase on the day (Russian and Chinese).
-
-        4. Transcription.
-
-        :param paragraphs: list of str,
-        """
-        if 'Ключевая фраза на сегодня:' not in paragraphs:
-            return paragraphs
-
-        # for debug
-        deleted = []
-
-        ru_index = paragraphs.index('Ключевая фраза на сегодня:')
-        step_index = ru_index
-
-        in_ch = '今日关键词'
-        if '每日关键词' in paragraphs:
-            in_ch = '每日关键词'
-        elif '今日关键词：' in paragraphs:
-            in_ch = '今日关键词：'
-
-        if in_ch in paragraphs:
-            ch_index = paragraphs.index(in_ch)
-            # delete only if these symbols
-            # are not in the main text
-            if ch_index == ru_index + 1:
-                deleted += [paragraphs[ch_index]]
-                del paragraphs[ch_index]
-            elif ch_index == ru_index - 1:
-                deleted += [paragraphs[ch_index]]
-                del paragraphs[ch_index]
-                step_index -= 1
-                ru_index -= 1
-            else:
-                print(f"'{in_ch}' these symbols were expected "
-                      "to be after or before the 'Ключевая фраза на сегодня:',"
-                      "but there are not")
-
-        deleted += [paragraphs[ru_index]]
-        del paragraphs[ru_index]
-
-        # if there is a Chinese and Russian symbol here
-        # mens there are original and translation texts
-        # delete only this str
-        if (re.search(r'[\u4e00-\u9fff]+', paragraphs[step_index]) and
-                re.search(r'[а-яёА-яЁ]', paragraphs[step_index])):
-            deleted += [paragraphs[step_index]]
-            del paragraphs[step_index]
-        else:
-            l1 = VKCrawler._define_language(paragraphs[step_index])
-            l2 = VKCrawler._define_language(paragraphs[step_index + 1])
-
-            # Chinese and Russian translation
-            # are in the different strings
-            if l1 and l2 and l1 != l2:
-                deleted += [paragraphs[step_index]]
-                deleted += [paragraphs[step_index + 1]]
-                del paragraphs[step_index]
-                del paragraphs[step_index]
-            elif l1 == l2:
-                # WTF: there is no translation of it!
-                deleted += [paragraphs[step_index]]
-                del paragraphs[step_index]
-
-        # if there is a transcription
-        if (re.search(r'^\[.+\]$', paragraphs[step_index]) or
-                paragraphs[step_index] in BLACK_LIST):
-            deleted += [paragraphs[step_index]]
-            del paragraphs[step_index]
-
-        deleted = '\n'.join(
-            f"{num}. {sent}"
-            for num, sent in enumerate(deleted, 1)
-        )
-        # remains = '\n'.join(
-        #     f"{num}. {sent}"
-        #     for num, sent in enumerate(paragraphs[ru_index - 2: ru_index + 5], 1)
-        # )
-        print(f"Deleted: \n{deleted}", end='\n\n')
-        # print(f"Remains: \n{remains}", end='\n\n')
-
-        return paragraphs
 
     @staticmethod
     def _get_text(text: str) -> Sdict:
