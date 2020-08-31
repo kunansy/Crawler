@@ -268,6 +268,15 @@ class VKCrawler:
         dt = datetime.datetime.fromtimestamp(timestamp)
         return dt.date()
 
+    def _format_date(self,
+                     date: datetime.datetime) -> str:
+        """ Format the date obj to str.
+
+        :param date: datetime.date to format.
+        :return: str, formatted date.
+        """
+        return date.strftime(self._dateformat)
+
     @staticmethod
     def _parse_post(post: Sdict) -> Sdict:
         """ Get all info from the post.
