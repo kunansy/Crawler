@@ -58,6 +58,17 @@ class VKCrawler:
 
         self._skipped_posts = []
 
+        self._dateformat = "%m/%d/%Y"
+        self._DATA_FOLDER = DATA_FOLDER / 'VK'
+        os.makedirs(self._DATA_FOLDER, exist_ok=True)
+
+    @property
+    def data_folder(self) -> Path:
+        """
+        :return: Path to data folder with all files.
+        """
+        return self._DATA_FOLDER
+
     @property
     def skipped_posts(self) -> List[Dict]:
         """
