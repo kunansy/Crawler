@@ -316,9 +316,10 @@ class VKCrawler:
         date = date.strftime("%m/%d/%Y")
         try:
             title_and_text = VKCrawler._get_text(post['text'])
-        except AssertionError as e:
-            print(e, post, sep='\n')
-            return {}
+        except AssertionError:
+            raise
+        except ValueError:
+            raise
 
         return {
             **title_and_text,
@@ -335,10 +336,19 @@ class VKCrawler:
 
         :return: list of parsed posts.
         """
-        parsed_posts = [
-            VKCrawler._parse_post(post)
-            for post in self.posts
-        ]
+        parsed_posts = []
+        for post in self.posts:
+            try:
+                parsed_post = VKCrawler._parse_post(post)
+            except AssertionError as e:
+                print(e, post, sep='\n')
+                continue
+            except ValueError as e:
+                print(e, post, sep='\n')
+                continue
+            else:
+                parsed_posts += [parsed_post]
+
         return parsed_posts
 
     @staticmethod
