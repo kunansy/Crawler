@@ -136,8 +136,15 @@ class VKCrawler:
         :param pairs: list of tuples, pairs: Russian – Chinese (expected).
         :return: list of tuples, pairs with corrected order.
         """
-        if re.search(r'[а-яёА-ЯЁ]', pairs[0][0]):
-            return pairs
+        fixed_pairs = []
+        for lhs, rhs in pairs:
+            if VKCrawler._define_language(lhs) == VKCrawler._define_language(rhs):
+                raise ValueError(
+                    f"There is a pair with the same languages: {lhs}\n{rhs}")
+            if VKCrawler._define_language(lhs) == 'rus':
+                fixed_pairs += [(lhs, rhs)]
+            else:
+                fixed_pairs += [(rhs, lhs)]
         return [
             (ru, ch)
             for ch, ru in pairs
