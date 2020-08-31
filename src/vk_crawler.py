@@ -104,9 +104,9 @@ class VKCrawler:
         From here count of new posts will be calculated.
         :return: None.
         """
-        if old_results_count < self.results_count:
+        if self.results_count < old_results_count:
             raise ValueError(
-                "Old results count must be >= than current count")
+                "Old results count must be <= than current count")
 
         new_count = self.results_count - old_results_count
         self.request(new_count)
