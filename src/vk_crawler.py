@@ -40,7 +40,14 @@ class VKCrawler:
                  access_token: str,
                  method: str = SEARCH_ON_WALL,
                  **params) -> None:
-        """ """
+        """ Init the crawler.
+
+        :param access_token: str, access token.
+        :param method: str, method of VK API you want to use.
+        :param params: some keywords to request.
+        See documentation how to set it.
+        :return: None.
+        """
         self._url = BASE_URL
         self._method = method
 
@@ -56,12 +63,15 @@ class VKCrawler:
 
     @property
     def results_count(self) -> int:
+        """
+        :return: int, count of results of the request.
+        """
         return self._results_count
 
     @property
     def url(self) -> str:
         """
-        :return: str, url of vk dev joined with method.
+        :return: str, url of vk dev joined with the method.
         """
         return f"{self._url}/{self._method}"
 
@@ -417,14 +427,14 @@ class VKCrawler:
 
     @staticmethod
     def _dump_metadata(metadata: List[Sdict]) -> None:
-        """ Dump metadata to the csv file.
+        """ Dump metadata to the csv file, set an
+        empty str to field if it does not exist.
 
         :param metadata: list of tuples, metadata to dump.
         :return: None.
         """
         path = DATA_FOLDER / 'metadata.csv'
         with path.open('w', newline='', encoding=ENCODING) as f:
-
             writer = csv.DictWriter(
                 f, restval='',
                 fieldnames=FIELDNAMES,
