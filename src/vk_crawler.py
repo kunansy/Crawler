@@ -14,7 +14,9 @@ TL = Tuple[str, str]
 
 # folder with csv files
 DATA_FOLDER = Path('data') / 'VK'
-os.makedirs(DATA_FOLDER, exist_ok=True)
+# folder with files with skipped posts
+SKIPPED_POSTS_FOLDER = DATA_FOLDER / 'skipped_posts'
+os.makedirs(SKIPPED_POSTS_FOLDER, exist_ok=True)
 
 # delimiter in csv files
 DELIMITER = '\t'
@@ -59,15 +61,23 @@ class VKCrawler:
         self._skipped_posts = []
 
         self._dateformat = "%m/%d/%Y"
-        self._DATA_FOLDER = DATA_FOLDER / 'VK'
-        os.makedirs(self._DATA_FOLDER, exist_ok=True)
+        self._data_folder = DATA_FOLDER
+        self._skipped_posts_folder = SKIPPED_POSTS_FOLDER
+
+    @property
+    def skipped_posts_folder(self) -> Path:
+        """
+        :return: Path to the folder with
+        files with skipped posts.
+        """
+        return self._skipped_posts_folder
 
     @property
     def data_folder(self) -> Path:
         """
         :return: Path to data folder with all files.
         """
-        return self._DATA_FOLDER
+        return self._data_folder
 
     @property
     def skipped_posts(self) -> List[Dict]:
