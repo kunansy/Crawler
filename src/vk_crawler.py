@@ -407,21 +407,19 @@ class VKCrawler:
             VKCrawler._dump_one(post, path)
         VKCrawler._dump_metadata(metadata)
 
-    @staticmethod
-    def _dump_one_skipped_post(post: Dict[str, Any],
-                               path: Path,
-                               dateformat: str) -> None:
+    def _dump_one_skipped_post(self,
+                               post: Dict[str, Any],
+                               path: Path) -> None:
         """ Dump skipped post to txt file.
 
         Dump only date in standard format and text.
 
         :param post: dict of str, post to dump.
         :param path: Path to txt the file.
-        :param dateformat: str, dateformat.
         :return: None.
         """
         date = VKCrawler._get_date(post['date'])
-        date = date.strftime(dateformat)
+        date = self._format_date(date)
         with path.open('w', encoding=ENCODING) as f:
             f.write(f"{date}\n")
             f.write(post['text'])
@@ -434,9 +432,6 @@ class VKCrawler:
 
         :return: None.
         """
-        folder = self.data_folder / 'skipped_posts'
-        os.makedirs(folder, exist_ok=True)
-
         for num, post in enumerate(self.skipped_posts, 1):
             path = folder / f"post{num}.txt"
             VKCrawler._dump_one_skipped_post(post, path, self._dateformat)
