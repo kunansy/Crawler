@@ -13,7 +13,7 @@ Sdict = Dict[str, Any]
 TL = Tuple[str, str]
 
 # folder with csv files
-DATA_FOLDER = Path('data')
+DATA_FOLDER = Path('data') / 'VK'
 os.makedirs(DATA_FOLDER, exist_ok=True)
 
 # delimiter in csv files
