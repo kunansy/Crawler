@@ -433,8 +433,16 @@ class VKCrawler:
         :return: None.
         """
         for num, post in enumerate(self.skipped_posts, 1):
-            path = folder / f"post{num}.txt"
-            VKCrawler._dump_one_skipped_post(post, path, self._dateformat)
+            path = self.skipped_posts_folder / f"post{num}.txt"
+            self._dump_one_skipped_post(post, path)
+
+    def from_txt_to_csv(self) -> None:
+        """ Convert txt files from the standard
+        folder with files with skipped posts to csv.
+
+        :return: None.
+        """
+        pass
 
     @staticmethod
     def _dump_metadata(metadata: List[Sdict]) -> None:
