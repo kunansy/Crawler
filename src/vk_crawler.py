@@ -21,7 +21,7 @@ os.makedirs(SKIPPED_POSTS_FOLDER, exist_ok=True)
 
 # delimiter in csv files
 DELIMITER = '\t'
-ENCODING = 'utf-16'
+ENCODING = 'utf-8'
 
 # for metadata writing
 FIELDNAMES = (
