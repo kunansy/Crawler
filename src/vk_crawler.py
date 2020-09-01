@@ -446,10 +446,10 @@ class VKCrawler:
 
     @staticmethod
     def _dump_metadata(metadata: List[Sdict]) -> None:
-        """ Dump metadata to the csv file, set an
+        """ Dump metadata to csv file, set an
         empty str to field if it does not exist.
 
-        :param metadata: list of tuples, metadata to dump.
+        :param metadata: list of dicts, metadata to dump.
         :return: None.
         """
         path = DATA_FOLDER / 'metadata.csv'
