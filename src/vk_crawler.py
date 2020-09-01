@@ -414,7 +414,7 @@ class VKCrawler:
 
             # name is the first 32 symbols of Russian
             # translation of the title
-            path = VKCrawler._create_filename(header_trans)
+            path = self._create_filename(header_trans)
 
             md = {
                 'path': path.name,
