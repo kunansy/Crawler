@@ -306,7 +306,7 @@ class VKCrawler:
         return dt.date()
 
     def _format_date(self,
-                     date: datetime.datetime) -> str:
+                     date: datetime.datetime or datetime.date) -> str:
         """ Format the date obj to str.
 
         :param date: datetime.date to format.
@@ -413,9 +413,9 @@ class VKCrawler:
         """
         metadata = []
         for post in self.parsed_posts:
-            header = post.pop('header')
+            header = post.pop('header', '')
             header_trans = post.pop('header_trans')
-            date = post.pop('date')
+            date = post.pop('date', '')
 
             # name is the first 32 symbols of Russian
             # translation of the title
