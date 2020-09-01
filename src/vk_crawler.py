@@ -272,15 +272,10 @@ class VKCrawler:
         text = VKCrawler._remove_trash(text)
 
         paragraphs = text.split('\n')
-        # remove hashtags
-        paragraphs = filter(
-            lambda txt: not txt.startswith('#'),
-            paragraphs
-        )
         paragraphs = [
             text.strip()
             for text in paragraphs
-            if len(text) > 1
+            if len(text.strip()) > 1 and not text.startswith('#')
         ]
 
         if not paragraphs:
