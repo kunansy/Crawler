@@ -489,8 +489,7 @@ class VKCrawler:
         """ Convert txt files with skipped posts
         from the standard folder to csv files.
 
-        Update (extend) the list of posts
-        and the list of parsed posts.
+        Update (extend) the list of parsed posts.
 
         Here it is assumed that in the skipped_posts_folder
         are fixed posts, means their format was corrected.
@@ -510,7 +509,6 @@ class VKCrawler:
                 continue
 
             self._parsed_posts += [parsed_post]
-            self._posts += parsed_post
 
     @staticmethod
     def _dump_metadata(metadata: List[Sdict]) -> None:
