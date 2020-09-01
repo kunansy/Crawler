@@ -462,13 +462,57 @@ class VKCrawler:
                 logger.error(
                     f"Post has no expected fields\n{e}\n{post}\n")
 
+    def _parse_one_skipped_post(self,
+                                path: Path) -> Sdict:
+        """ Parse the file with corrected format.
+
+        Dict format {
+            'date': date in timestamp,
+            'text': str, text
+         }.
+
+        :param path: Path to the file to parse.
+        :return: this dict.
+        """
+        res = {}
+        with path.open(encoding=ENCODING) as f:
+            lines = f.readlines()
+            date = lines[0].strip()
+            date = datetime.datetime.strptime(date, self._dateformat)
+            timestamp = date.timestamp()
+
+            text = ''.join(lines[1:])
+
+            res['date'] = timestamp
+            res['text'] = text
+            return res
+
     def from_txt_to_csv(self) -> None:
-        """ Convert txt files from the standard
-        folder with files with skipped posts to csv.
+        """ Convert txt files with skipped posts
+        from the standard folder to csv files.
+
+        Update (extend) the list of posts
+        and the list of parsed posts.
+
+        Here it is assumed that in the skipped_posts_folder
+        are fixed posts, means their format was corrected.
 
         :return: None.
         """
-        pass
+        for item in os.listdir(self.skipped_posts_folder):
+            path = self.skipped_posts_folder / item
+            if not path.is_file():
+                continue
+
+            post = self._parse_one_skipped_post(path)
+            try:
+                parsed_post = self._parse_post(post, self._dateformat)
+            except ValueError as e:
+                logger.error(f"{e}\nIn file {item}\nWith post: {post}")
+                continue
+
+            self._parsed_posts += [parsed_post]
+            self._posts += parsed_post
 
     @staticmethod
     def _dump_metadata(metadata: List[Sdict]) -> None:
