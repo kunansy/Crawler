@@ -1,5 +1,6 @@
 import csv
 import datetime
+import logging
 import os
 import re
 from pathlib import Path
@@ -30,6 +31,37 @@ FIELDNAMES = (
 
 BASE_URL = "https://api.vk.com/method"
 SEARCH_ON_WALL = "wall.search"
+
+
+logger = logging.getLogger(__name__)
+
+DEFAULT_MSG_FMT = "[{name}:{levelname}:{funcName}:{asctime}] {message}"
+DEFAULT_DATE_FMT = "%d.%m.%Y %H:%M:%S"
+
+LOG_FOLDER = Path('logs')
+os.makedirs(LOG_FOLDER, exist_ok=True)
+
+formatter = logging.Formatter(
+    fmt=DEFAULT_MSG_FMT,
+    datefmt=DEFAULT_DATE_FMT,
+    style='{'
+)
+
+# create stream handler
+stream_handler = logging.StreamHandler()
+stream_handler.setLevel(logging.INFO)
+stream_handler.setFormatter(formatter)
+
+# create file handler
+log_file_path = LOG_FOLDER / f"{__name__}.log"
+file_handler = logging.FileHandler(
+    log_file_path, delay=True, encoding='utf-8')
+file_handler.setLevel(logging.DEBUG)
+file_handler.setFormatter(formatter)
+
+# add these handlers
+logger.addHandler(stream_handler)
+logger.addHandler(file_handler)
 
 
 class VKCrawler:
@@ -331,11 +363,11 @@ class VKCrawler:
             try:
                 parsed_post = VKCrawler._parse_post(post, self._dateformat)
             except AssertionError as e:
-                print(e, post, sep='\n', end='\n\n')
+                logger.error(f"{e}\n{post}\nPost added to skipped posts list\n")
                 self._skipped_posts += [post]
                 continue
             except ValueError as e:
-                print(e, post, sep='\n', end='\n\n')
+                logger.error(f"{e}\n{post}\nPost added to skipped posts list\n")
                 self._skipped_posts += [post]
                 continue
             else:
