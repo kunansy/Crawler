@@ -505,7 +505,7 @@ class VKCrawler:
             try:
                 parsed_post = self._parse_post(post, self._dateformat)
             except ValueError as e:
-                logger.error(f"{e}\nIn file {item}\nWith post: {post}")
+                logger.error(f"{e}\nIn file {item}\nWith post: {post}\n")
                 continue
 
             self._parsed_posts += [parsed_post]
