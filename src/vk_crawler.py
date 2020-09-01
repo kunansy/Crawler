@@ -461,7 +461,11 @@ class VKCrawler:
         """
         for num, post in enumerate(self.skipped_posts, 1):
             path = self.skipped_posts_folder / f"post{num}.txt"
-            self._dump_one_skipped_post(post, path)
+            try:
+                self._dump_one_skipped_post(post, path)
+            except KeyError as e:
+                logger.error(
+                    f"Post has no expected fields\n{e}\n{post}\n")
 
     def from_txt_to_csv(self) -> None:
         """ Convert txt files from the standard
