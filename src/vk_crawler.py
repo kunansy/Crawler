@@ -277,7 +277,7 @@ class VKCrawler:
             raise ValueError("Post is empty")
 
         if len(paragraphs) % 2 is 1:
-            raise ValueError("There is odd count of paragraphs")
+            raise ValueError(f"There is odd count of paragraphs: {paragraphs}")
 
         pairs = list(zip(paragraphs[::2], paragraphs[1::2]))
         # swap languages if it is demanded
@@ -342,8 +342,8 @@ class VKCrawler:
         """ Parse all posts to dict format: {
            'header': header in Chinese
            'header_trans': header in Russian,
-            'text': [(Russian, Chinese), (Russian, Chinese)...],
-            'date': date, str format m/d/y
+           'text': [(Russian, Chinese), (Russian, Chinese)...],
+           'date': date, str format m/d/y
         }
 
         :return: list of parsed posts.
@@ -355,11 +355,9 @@ class VKCrawler:
             except AssertionError as e:
                 logger.error(f"{e}\n{post}\nPost added to skipped posts list\n")
                 self._skipped_posts += [post]
-                continue
             except ValueError as e:
                 logger.error(f"{e}\n{post}\nPost added to skipped posts list\n")
                 self._skipped_posts += [post]
-                continue
             else:
                 parsed_posts += [parsed_post]
 
