@@ -380,8 +380,8 @@ class VKCrawler:
             for pair_ru_ch in post['text']:
                 writer.writerow(pair_ru_ch)
 
-    @staticmethod
-    def _create_filename(title: str) -> Path:
+    def _create_filename(self,
+                         title: str) -> Path:
         """ Remove wrong symbols from the title,
         replace spaces to the '_', add DATA_FOLDER
         as a parent and short the filename to 32 symbols.
@@ -395,7 +395,7 @@ class VKCrawler:
             if symbol.isalpha() or symbol == ' '
         ]
         filename = ''.join(title)[:32]
-        return DATA_FOLDER / f"{filename}.csv"
+        return self.data_folder / f"{filename}.csv"
 
     def dump_all(self) -> None:
         """ Dump to csv all posts and write to
