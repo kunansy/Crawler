@@ -262,12 +262,7 @@ class VKCrawler:
         :param text: str, text to parse.
         :return: dict of str with the format.
         """
-        hashtag_search = re.compile(
-            r'#Новости_на_двух_языках', flags=re.IGNORECASE)
-        assert hashtag_search.search(text), "There is no the hashtag"
-
         text = text.replace('\n \n', '\n\n')
-        text = hashtag_search.sub('', text).strip()
 
         text = VKCrawler._remove_trash(text)
 
