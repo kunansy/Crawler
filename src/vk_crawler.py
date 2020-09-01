@@ -186,7 +186,7 @@ class VKCrawler:
         ]
         # convert matrix to list
         self._posts = sum(posts, [])
-        self._parsed_posts = self._parse_posts()
+        self._parsed_posts += self._parse_posts()
 
     def _get_results_count(self) -> int:
         """ Get count of results found in VK.
