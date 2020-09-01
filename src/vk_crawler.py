@@ -69,10 +69,10 @@ class VKCrawler:
                  access_token: str,
                  method: str = SEARCH_ON_WALL,
                  **params) -> None:
-        """ Init the crawler.
+        """ Init the VK crawler.
 
         :param access_token: str, access token.
-        :param method: str, method of VK API you want to use.
+        :param method: str, method of the VK API you want to use.
         :param params: some keywords to request.
         See documentation how to set it.
         :return: None.
@@ -154,18 +154,18 @@ class VKCrawler:
         return self._access_token
 
     def update(self,
-               old_results_count: int) -> None:
+               last_results_count: int) -> None:
         """ Get all new posts.
 
-        :param old_results_count: int, old count of results (=count of docs).
+        :param last_results_count: int, old count of results (=count of docs).
         From here count of new posts will be calculated.
         :return: None.
         """
-        if self.results_count < old_results_count:
+        if self.results_count < last_results_count:
             raise ValueError(
                 "Old results count must be <= than current count")
 
-        new_count = self.results_count - old_results_count
+        new_count = self.results_count - last_results_count
         self.request(new_count)
 
     def request(self,
@@ -315,7 +315,8 @@ class VKCrawler:
         """ Get all info from the post.
 
         Dict format {
-            'title': (Russian, Chinese),
+            'header': header in Chinese.
+            'header_trans': header in Russian,
             'text': [(Russian, Chinese), (Russian, Chinese)...],
             'date': date, str format m/d/y
         }
