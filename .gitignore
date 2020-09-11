@@ -131,7 +131,4 @@ dmypy.json
 # tests
 *.bat
 
-*.txt
-*.csv
-
 /data
