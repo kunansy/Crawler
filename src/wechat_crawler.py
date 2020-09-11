@@ -1,15 +1,27 @@
 import asyncio
-from time import time
-from typing import List
+import csv
+from pathlib import Path
+from typing import List, Tuple
 
 import aiofiles
 import aiohttp
 import bs4
+import requests
 
 P_NUM_STEP = 12
 URL = "https://chuansongme.com/account/loveeyu"
-CLEAN_URL = "https://chuansongme.com"
+BASE_URL = "https://chuansongme.com"
 LINK_FILE = 'links.txt'
+
+TEMPLATE_FILENAME = "cri_rus_2020_wechat{}.csv"
+METADATA_PATH = Path(f"meta_{TEMPLATE_FILENAME.format('')}")
+
+# for csv writing
+DELIMITER = '\t'
+FIELDNAMES = (
+    'path', 'header', 'created', 'author', 'birthday', 'header_trans',
+    'author_trans', 'translator', 'date_trans', 'sphere', 'lang', 'lang_trans'
+)
 
 
 async def dump(links: List[str],
@@ -39,7 +51,7 @@ def get_links(page: str) -> List[str]:
         except KeyError:
             print("Link is not found")
             continue
-        full_link = f"{CLEAN_URL}{link}"
+        full_link = f"{BASE_URL}{link}"
         links += [full_link]
     return links
 
@@ -108,9 +120,73 @@ def get_page_codes(url: str,
     return asyncio.run(bound_fetch(url, start, p_count))
 
 
+def valid_articles(base_soup: bs4.BeautifulSoup):
+    """ Generator to get valid articles.
+    Means there is demanded marker in the title.
+
+    :param base_soup: bs4.BeautifulSoup, page soup.
+    :return: article soup.
+    """
+    for link in base_soup.find_all('a', {'class': 'question_link'}):
+        full_link = f"{BASE_URL}{link}"
+        html = requests.get(full_link).text
+        soup = bs4.BeautifulSoup(html, 'lxml')
+
+        title = soup.find()
+        if '导言' in title:
+            yield soup
+
+
+def parse_article(article: bs4.BeautifulSoup) -> List[Tuple[str, str]]:
+    """ Get data and metadata from the article.
+
+    :param article: bs4.BeautifulSoup, article to parse.
+    :return: tuple of data (list of tuples: (Russian, Chinese)...)
+    and metadata (dict).
+    """
+    pass
+
+
+def dump_article(article: List[Tuple[str, str]],
+                 filepath: Path) -> None:
+    with filepath.open('w', encoding='utf-8', newline='') as f:
+        writer = csv.writer(
+            f, delimiter=DELIMITER, quoting=csv.QUOTE_MINIMAL)
+        for pair_ru_ch in article:
+            writer.writerow(pair_ru_ch)
+
+
+def dump_metadata(metadata: dict) -> None:
+    with METADATA_PATH.open('a', encoding='utf-8', newline='') as f:
+        writer = csv.DictWriter(
+            f, fieldnames=FIELDNAMES,
+            delimiter=DELIMITER,
+            quoting=csv.QUOTE_MINIMAL)
+
+        # TODO
+        # writer.writeheader()
+        writer.writerow(metadata)
+
+
+def main():
+    # TODO: идти по 100 за заход
+    urls = [
+        f"{URL}?start={P_NUM_STEP * mult}"
+        for mult in range(994)
+    ]
+
+    for num, url in enumerate(urls, 1):
+        print(num, 'page in processing...')
+        filepath = Path(TEMPLATE_FILENAME.format(num))
+
+        html = requests.get(url)
+        soup = bs4.BeautifulSoup(html, 'lxml')
+        for article in valid_articles(soup):
+            parsed_article, md = parse_article(article)
+
+            dump_article(parsed_article, filepath)
+            dump_metadata(md)
+
+
 if __name__ == '__main__':
-    start = time()
-    codes = get_page_codes(URL, 0, 100)
-    assert len(codes) % 12 is 0
-    print(f"Executing time {time() - start}")
-    print(len(codes))
+    main()
