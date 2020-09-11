@@ -1,1 +1,4 @@
 aiohttp>=3.6
+aiofiles
+bs4
+lxml
