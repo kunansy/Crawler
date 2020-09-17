@@ -116,6 +116,11 @@ def dump_article(article: List[Tuple[str, str]],
 
 
 def dump_metadata(metadata: dict) -> None:
+    """ Dump metadata to the file, update it.
+
+    :param metadata: dict of str, metadata to dump.
+    :return: None.
+    """
     with METADATA_PATH.open('a', encoding='utf-8', newline='') as f:
         writer = csv.DictWriter(
             f, fieldnames=FIELDNAMES,
