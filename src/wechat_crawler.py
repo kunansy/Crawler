@@ -73,21 +73,38 @@ def get_page_codes(urls: List[str]) -> List[str]:
     return asyncio.run(bound_fetch(urls))
 
 
-def valid_articles(base_soup: bs4.BeautifulSoup):
+def valid_articles(page_code: str):
     """ Generator to get valid articles.
     Means there is demanded marker in the title.
 
-    :param base_soup: bs4.BeautifulSoup, page soup.
-    :return: article soup.
-    """
-    for link in base_soup.find_all('a', {'class': 'question_link'}):
-        full_link = f"{BASE_URL}{link}"
-        html = requests.get(full_link).text
-        soup = bs4.BeautifulSoup(html, 'lxml')
+    Get articles codes, chick their valid,
+    yield one if it is.
 
-        title = soup.find()
-        if '导言' in title:
-            yield soup
+    :param page_code: str, page html code.
+    :return: yield article soup.
+    """
+    soup = bs4.BeautifulSoup(page_code, 'lxml')
+    links = soup.find_all('a', {'class': 'question_link'})
+    assert len(links) is 12, "Wrong links count, 12 expected"
+
+    for step in range(3):
+        block = links[step: 3 + step]
+        full_links = [
+            f"{BASE_URL}{link['href']}"
+            for link in block
+        ]
+
+        article_codes = get_page_codes(full_links)
+        for article in article_codes:
+            soup = bs4.BeautifulSoup(article, 'lxml')
+            title = soup.find('section', {'data-brushtype': 'text'})
+            try:
+                title = title.text
+            except AttributeError as e:
+                print("Article has no title")
+                continue
+            if '导言' in title or '导 言' in title:
+                yield soup
 
 
 def parse_article(article: bs4.BeautifulSoup) -> List[Tuple[str, str]]:
