@@ -3,10 +3,8 @@ import csv
 from pathlib import Path
 from typing import List, Tuple
 
-import aiofiles
 import aiohttp
 import bs4
-import requests
 
 P_NUM_STEP = 12
 URL = "https://chuansongme.com/account/loveeyu"
@@ -22,23 +20,8 @@ FIELDNAMES = (
     'path', 'header', 'created', 'author', 'birthday', 'header_trans',
     'author_trans', 'translator', 'date_trans', 'sphere', 'lang', 'lang_trans'
 )
+ARTICLE_NUM = 1
 
-
-async def dump(links: List[str],
-               filename: str) -> None:
-    """ Dump links to file with tag 'a'.
-
-    :param links: list of str, links to dump.
-    :param filename: str, name of the file.
-    :return: None.
-    """
-    async with aiofiles.open(filename, 'a', encoding='utf-8') as f:
-        for link in links:
-            await f.write(f"{link}\n")
-
-
-def get_links(page: str) -> List[str]:
-    """ Get links to the articles from the page.
 
 async def get_html_coro(url: str,
                         ses: aiohttp.ClientSession,
