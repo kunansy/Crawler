@@ -149,25 +149,49 @@ def dump_metadata(metadata: dict) -> None:
         writer.writerow(metadata)
 
 
-def main():
-    # TODO: идти по 100 за заход
+def parse_page(page_code: str) -> None:
+    """ Get valid articles from the page, parse them,
+    dump them to the files and dump metadata.
+
+    :param page_code: str, html code of the page to parse.
+    :return: None.
+    """
+    global ARTICLE_NUM
+    for article in valid_articles(page_code):
+        print(ARTICLE_NUM, "article in process...")
+        filepath = Path(TEMPLATE_FILENAME.format(ARTICLE_NUM))
+
+        # get pairs [(Russian, Chinese)...]
+        # and metadata from the article
+        parsed_article, md = parse_article(article)
+        # dump article to the file
+        dump_article(parsed_article, filepath)
+        # dump metadata to the file, update the file
+        dump_metadata(md)
+
+        ARTICLE_NUM += 1
+
+
+def parse_block(start: int,
+                stop: int) -> None:
+    """ Parse a block of 5 pages: get valid
+    articles and dump them. Also dump metadata.
+
+    :param start: int, range start.
+    :param stop: int, range stop.
+    :return: None.
+    """
+    global ARTICLE_NUM
     urls = [
         f"{URL}?start={P_NUM_STEP * mult}"
-        for mult in range(994)
+        for mult in range(start, stop)
     ]
+    assert len(urls) is 5, "Wrong len, 5 expected"
 
-    for num, url in enumerate(urls, 1):
-        print(num, 'page in processing...')
-        filepath = Path(TEMPLATE_FILENAME.format(num))
-
-        html = requests.get(url)
-        soup = bs4.BeautifulSoup(html, 'lxml')
-        for article in valid_articles(soup):
-            parsed_article, md = parse_article(article)
-
-            dump_article(parsed_article, filepath)
-            dump_metadata(md)
+    page_codes = get_page_codes(urls)
+    for page_code in page_codes:
+        parse_page(page_code)
 
 
 if __name__ == '__main__':
-    main()
+    parse_block(0, 5)
