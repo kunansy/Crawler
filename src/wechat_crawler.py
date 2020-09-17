@@ -40,25 +40,9 @@ async def dump(links: List[str],
 def get_links(page: str) -> List[str]:
     """ Get links to the articles from the page.
 
-    :param page: str, html code of the page.
-    :return: list of str, links to articles from the page.
-    """
-    soup = bs4.BeautifulSoup(page, 'lxml')
-    links = []
-    for link in soup.find_all('a', {'class': 'question_link'}):
-        try:
-            link = link['href']
-        except KeyError:
-            print("Link is not found")
-            continue
-        full_link = f"{BASE_URL}{link}"
-        links += [full_link]
-    return links
-
-
-async def fetch_coro(url: str,
-                     ses: aiohttp.ClientSession,
-                     **kwargs) -> str:
+async def get_html_coro(url: str,
+                        ses: aiohttp.ClientSession,
+                        **kwargs) -> str:
     """ Get the html code of the page.
 
     There is ClientTimeout = 30s.
@@ -78,20 +62,16 @@ async def fetch_coro(url: str,
         resp.raise_for_status()
 
 
-async def bound_fetch(url: str,
-                      start: int,
-                      page_count: int) -> List[str]:
-    """ Get pages code, parse links from there
-    and dump them to the default file.
+async def bound_fetch(urls: List[str]) -> List[str]:
+    """ Get pages code.
 
-    :param url: str, url.
-    :param page_count: int, count of pages.
-    :return: list of str, dumped links.
+    :param urls: list of str, urls to get their html codes.
+    :return: list of str, html codes of pages.
     """
     async with aiohttp.ClientSession() as ses:
         tasks = [
-            asyncio.create_task(fetch_coro(url, ses, start=P_NUM_STEP * mult))
-            for mult in range(start, page_count + 1)
+            asyncio.create_task(get_html_coro(url, ses))
+            for url in urls
         ]
         pages_codes = []
         while True:
@@ -99,25 +79,15 @@ async def bound_fetch(url: str,
             for future in done:
                 try:
                     page_code = future.result()
-                    links = get_links(page_code)
-                    await dump(links, LINK_FILE)
-                except aiohttp.ClientResponseError as e:
-                    print(e)
-
-                    url_ = e.args[0].url
-                    await dump([url_], 'skipped_urls1.txt')
-                    continue
                 except Exception as e:
                     print(e)
-                    continue
-                pages_codes += links
+                else:
+                    pages_codes += [page_code]
             return pages_codes
 
 
-def get_page_codes(url: str,
-                   start: int,
-                   p_count: int) -> List[str]:
-    return asyncio.run(bound_fetch(url, start, p_count))
+def get_page_codes(urls: List[str]) -> List[str]:
+    return asyncio.run(bound_fetch(urls))
 
 
 def valid_articles(base_soup: bs4.BeautifulSoup):
