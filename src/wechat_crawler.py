@@ -102,6 +102,12 @@ def parse_article(article: bs4.BeautifulSoup) -> List[Tuple[str, str]]:
 
 def dump_article(article: List[Tuple[str, str]],
                  filepath: Path) -> None:
+    """ Dump the parsed article to the file.
+
+    :param article: list of tuples to dump [(Russian, Chinese)...].
+    :param filepath: Path to the file to dump.
+    :return: None.
+    """
     with filepath.open('w', encoding='utf-8', newline='') as f:
         writer = csv.writer(
             f, delimiter=DELIMITER, quoting=csv.QUOTE_MINIMAL)
