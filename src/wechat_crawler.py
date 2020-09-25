@@ -96,8 +96,8 @@ def valid_articles(page_code: str):
         ]
 
         article_codes = get_page_codes(full_links)
-        for article in article_codes:
-            soup = bs4.BeautifulSoup(article, 'lxml')
+        for article_code, article_url in zip(article_codes, full_links):
+            soup = bs4.BeautifulSoup(article_code, 'lxml')
             title = soup.find('section', {'data-brushtype': 'text'})
             try:
                 title = title.text
