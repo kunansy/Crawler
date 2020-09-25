@@ -9,7 +9,6 @@ import bs4
 P_NUM_STEP = 12
 URL = "https://chuansongme.com/account/loveeyu"
 BASE_URL = "https://chuansongme.com"
-LINK_FILE = 'links.txt'
 
 TEMPLATE_FILENAME = "cri_rus_2020_wechat{}.csv"
 METADATA_PATH = Path(f"meta_{TEMPLATE_FILENAME.format('')}")
@@ -40,7 +39,6 @@ async def get_html_coro(url: str,
     timeout = aiohttp.ClientTimeout(30)
     async with ses.get(url, params=kwargs, timeout=timeout) as resp:
         if resp.status is 200:
-            await asyncio.sleep(2)
             return await resp.text()
         resp.raise_for_status()
 
