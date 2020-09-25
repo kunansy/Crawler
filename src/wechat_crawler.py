@@ -61,6 +61,7 @@ async def bound_fetch(urls: List[str]) -> List[str]:
                 try:
                     page_code = future.result()
                 except Exception as e:
+                    # TODO: logger
                     print(e)
                 else:
                     pages_codes += [page_code]
@@ -86,6 +87,8 @@ def valid_articles(page_code: str):
     assert len(links) is 12, "Wrong links count, 12 expected"
 
     for step in range(3):
+        # there are 12 articles on a page,
+        # divide them to blocks by 3
         block = links[step: 3 + step]
         full_links = [
             f"{BASE_URL}{link['href']}"
@@ -99,7 +102,8 @@ def valid_articles(page_code: str):
             try:
                 title = title.text
             except AttributeError as e:
-                print("Article has no title")
+                # TODO: logger
+                print(f"Article has no title, URL: {article_url}")
                 continue
             if '导言' in title or '导 言' in title:
                 yield soup
@@ -164,7 +168,7 @@ def parse_page(page_code: str) -> None:
         parsed_article, md = parse_article(article)
         # dump article to the file
         dump_article(parsed_article, filepath)
-        # dump metadata to the file, update the file
+        # dump metadata to the file, update it
         dump_metadata(md)
 
         ARTICLE_NUM += 1
